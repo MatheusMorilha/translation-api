@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  translation-api:
+    build: ./translation-api
+    container_name: translation-api
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongodb:27017/translation_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_QUEUE_NAME: translation_requests
+
+    depends_on:
+      - rabbitmq
+      - mongodb
+    volumes:
+      - ./translation-api:/app
+      - /app/node_modules
+
+  translation-worker:
+    build: ./translation-worker
+    container_name: translation-worker
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/translation_db
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_QUEUE_NAME: translation_requests
+ 
+    depends_on:
+      - rabbitmq
+      - mongodb
+    volumes:
+      - ./translation-worker:/app
+      - /app/node_modules
+
+volumes:
+  mongodb_data:
