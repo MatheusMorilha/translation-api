@@ -72,17 +72,6 @@ translation-system/
 
 ---
 
-## ⚙️ Configuração e Instalação
-
-### `.env` da `translation-api`
-
-```env
-PORT=3000
-MONGODB_URI=mongodb://mongodb:27017/translation_db
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-RABBITMQ_QUEUE_NAME=translation_requests
-```
-
 ## ▶️ Como Rodar a Aplicação
 
 ### Subir os containers
