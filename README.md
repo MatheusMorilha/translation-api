@@ -147,6 +147,90 @@ curl http://localhost:3000/api/translations/UM_UUID_GERADO_AQUI
 
 ---
 
+
+---
+
+## 📌 Exemplo de Requisição e Resposta
+
+### 📤 Cadastro de uma Mensagem para Tradução
+
+**Endpoint:** `POST /api/translations`  
+**Requisição:**
+
+```json
+{
+  "originalText": "Olá, como está o dia hoje?",
+  "targetLanguage": "en"
+}
+```
+
+**Resposta (imediata):**
+
+```json
+{
+  "requestId": "8f14e45f-ea8a-4c89-a590-1de3dbf49caa",
+  "status": "queued",
+  "message": "Translation request received"
+}
+```
+
+---
+
+### ⚙️ Simulação do Fluxo Interno
+
+#### MongoDB registra inicialmente:
+
+```json
+{
+  "requestId": "8f14e45f-ea8a-4c89-a590-1de3dbf49caa",
+  "originalText": "Olá, como está o dia hoje?",
+  "targetLanguage": "en",
+  "status": "queued",
+  "createdAt": "2025-06-15T21:30:00.000Z",
+  "updatedAt": "2025-06-15T21:30:00.000Z"
+}
+```
+
+#### Worker atualiza para:
+
+```json
+{
+  "status": "processing",
+  "updatedAt": "2025-06-15T21:30:02.000Z"
+}
+```
+
+#### Após simular a tradução:
+
+```json
+{
+  "status": "completed",
+  "translatedText": "Hello, how is the day today?",
+  "updatedAt": "2025-06-15T21:30:04.000Z"
+}
+```
+
+---
+
+### 📥 Consulta do Resultado da Tradução
+
+**Endpoint:** `GET /api/translations/8f14e45f-ea8a-4c89-a590-1de3dbf49caa`
+
+**Resposta Final:**
+
+```json
+{
+  "requestId": "8f14e45f-ea8a-4c89-a590-1de3dbf49caa",
+  "originalText": "Olá, como está o dia hoje?",
+  "translatedText": "Hello, how is the day today?",
+  "targetLanguage": "en",
+  "status": "completed",
+  "createdAt": "2025-06-15T21:30:00.000Z",
+  "updatedAt": "2025-06-15T21:30:04.000Z"
+}
+```
+
+
 ## 🧹 Parar e Limpar os Serviços
 
 ```bash
@@ -154,3 +238,7 @@ docker-compose down --volumes
 ```
 
 ---
+
+## 📄 Licença
+
+Este projeto é de uso educacional e pode ser modificado livremente para fins de aprendizado.
